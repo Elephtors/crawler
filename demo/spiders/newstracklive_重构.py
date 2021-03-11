@@ -51,7 +51,7 @@ class newstracklive(scrapy.Spider):
     language_id = 1740  # 所用语言的id
     start_urls = ['https://www.newstracklive.com/']
     sql = {  # sql配置
-        'host': '192.168.235.162',
+        'host': '121.36.242.178',
         'user': 'dg_cxq',
         'password': 'dg_cxq',
         'db': 'dg_test'
