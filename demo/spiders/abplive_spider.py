@@ -54,7 +54,7 @@ class abplive(scrapy.Spider):
     language_id = 1930 # 所用语言的id
     start_urls = ['https://www.abplive.com']
     sql = {  # sql配置
-        'host': '121.36.242.178',
+        'host': '192.168.235.162',
         'user': 'dg_cxq',
         'password': 'dg_cxq',
         'db': 'dg_test'
@@ -76,26 +76,38 @@ class abplive(scrapy.Spider):
         soup = BeautifulSoup(response.text,'lxml')
         #若有新闻列表
         if len(soup.select('div.other_news > a')):
-            for i in soup.select('div.uk-width-expand.uk-first-column div.other_news > a'):
+            for i in soup.select('div.uk-width-expand.uk-first-column div.other_news > a')[:-1]:
                 yield Request(i.attrs['href'],callback=self.parse_3)
             #是否可以换页
             if len(soup.select('ul.pagination > li')) > 3:
                 next_url = soup.select('ul.pagination > li')[-2].find('a').attrs['href']
                 #取当前页的最后一条新闻url
                 last_new = soup.select('div.other_news > a')[-1].attrs['href']
-                if len(BeautifulSoup(requests.get(last_new).text,'lxml').select('p.article-author')):
-                    last_time = time_font(BeautifulSoup(requests.get(last_new).text,'lxml').select('p.article-author')[0].text)
-                    if self.time == None or Util.format_time3(last_time) >= int(self.time):  # 截止功能
-                        yield Request(next_url, callback=self.parse_2)
-                    else:
-                        self.logger.info('时间截至')
-                elif len(BeautifulSoup(requests.get(last_new).text,'lxml').find_all('span',id='dateSpanElem')):
-                    last_time = time_font(
-                        BeautifulSoup(requests.get(last_new).text, 'lxml').find_all('span',id='dateSpanElem')[0].text)
-                    if self.time == None or Util.format_time3(last_time) >= int(self.time):  # 截止功能
-                        yield Request(next_url, callback=self.parse_2)
-                    else:
-                        self.logger.info('时间截至')
+                # 选取最后一篇新闻给parse_judge进行判断，判断通过后就将下一页的爬取
+                response.meta['don_t filter'] = True
+                yield Request(last_new, callback=self.parse_judge,meta={'next_url':next_url}, dont_filter=True)
+
+    #用于判断是否截至
+    def parse_judge(self,response):
+        response.meta['dont_filter'] = False
+        next_url = response.meta['next_url']
+        last_new = response.url
+        #判断是否要爬取
+        if len(BeautifulSoup(requests.get(last_new).text, 'lxml').select('p.article-author')):
+            last_time = time_font(BeautifulSoup(requests.get(last_new).text, 'lxml').select('p.article-author')[0].text)
+            if self.time == None or Util.format_time3(last_time) >= int(self.time):  # 截止功能
+                yield Request(next_url,meta=response.meta, callback=self.parse_2)
+            else:
+                self.logger.info('时间截至')
+        elif len(BeautifulSoup(requests.get(last_new).text, 'lxml').find_all('span', id='dateSpanElem')):
+            last_time = time_font(
+                BeautifulSoup(requests.get(last_new).text, 'lxml').find_all('span', id='dateSpanElem')[0].text)
+            if self.time == None or Util.format_time3(last_time) >= int(self.time):  # 截止功能
+                yield Request(next_url,meta=response.meta ,callback=self.parse_2)
+            else:
+                self.logger.info('时间截至')
+        #最后将该文章爬了
+        yield Request(response.url,callback=self.parse_3)
 
     def parse_3(self,response, **kwargs):
         new_soup = BeautifulSoup(response.text, 'lxml')
