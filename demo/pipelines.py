@@ -42,6 +42,7 @@ class DemoSqlPipeline:
                     valueString += ',%s'
                 valuelist.append(item[key])
         sqli = 'insert into news ('+str(keyString)+') values ('+str(valueString)+')'
+        # spider.logger.info(sqli)
         self.cur.execute(sqli,valuelist)
         self.db.commit()
 

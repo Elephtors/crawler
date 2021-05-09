@@ -1,1 +1,1 @@
-scrapy crawl aajtak -a time=1610095076
+scrapy crawl thejanmat -a time=1618993222
