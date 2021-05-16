@@ -10,7 +10,7 @@ from scrapy.http import Request, Response
 #author：詹婕妤
 
 class DndGovSpider(scrapy.Spider):
-    name = 'dnd_gov'
+    name = 'dndgov'
     website_id = 1269  # 网站的id(必填)
     language_id = 2117  # 所用语言的id
     allowed_domains = ['www.dnd.gov.ph']
@@ -19,10 +19,10 @@ class DndGovSpider(scrapy.Spider):
                   'https://www.dnd.gov.ph/PostCategories/Title/Press%20Release?type=Category%20Gallery&page=1&take=12']
 
     sql = {  # sql配置
-        'host': '121.36.242.178',
-        'user': 'dg_zjy',
-        'password': 'dg_zjy',
-        'db': 'dg_test_source'
+        'host': '192.168.235.162',
+        'user': 'dg_admin',
+        'password': 'dg_admin',
+        'db': 'dg_crawler'
     }
 
     # 这是类初始化函数，用来传时间戳参数
