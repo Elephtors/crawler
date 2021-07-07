@@ -71,6 +71,16 @@ class Util(object):
             while re.findall(r'\d+',list[num])==[]:
                 num += 1
             return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()-int(list[num])*604800))
+        elif re.findall(r'\d+ months ago',data) != [] or re.findall(r'\d+ month ago',data) != []:
+            num = 0
+            while re.findall(r'\d+',list[num])==[]:
+                num += 1
+            return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()-int(list[num])*2592000))
+        elif re.findall(r'\d+ years ago',data) != [] or re.findall(r'\d+ year ago',data) != []:
+            num = 0
+            while re.findall(r'\d+',list[num])==[]:
+                num += 1
+            return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()-int(list[num])*31536000))
         else:
             return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
 
